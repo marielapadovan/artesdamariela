@@ -1,11 +1,33 @@
-$(document).ready(function () {
+let mainProgressBar = document.querySelector(
+	".progress-bar--primary .progress-bar__fill"
+);
+let mainPosts = document.querySelectorAll(".main-post");
+let posts = document.querySelectorAll(".post");
 
+let i = 0;
+let postIndex = 0;
+let currentPost = posts[postIndex];
+let currentMainPost = mainPosts[postIndex];
+let progressInterval = setInterval(progress, 100);
+
+$(document).ready(function () {
 	setTimeout(function () {
+		loadPosts();
 		$('body').addClass('loaded');
 		$('h1').css('color', '#222222');
 	}, 2000);
-
 });
+
+loadPosts = () => {
+	mainPosts = document.querySelectorAll(".main-post");
+	posts = document.querySelectorAll(".post");
+	mainProgressBar = document.querySelector(
+		".progress-bar--primary .progress-bar__fill"
+	);
+	currentPost = posts[postIndex];
+	currentMainPost = mainPosts[postIndex];
+	progressInterval = setInterval(progress, 100);
+}
 
 (function ($) {
 
@@ -91,23 +113,6 @@ $(document).ready(function () {
 		document.querySelector('#top').style.height = window.innerHeight + 'px';
 	}
 
-	window.onload = function () {
-		
-		var elements = document.getElementsByClassName('typewrite');
-		for (var i = 0; i < elements.length; i++) {
-			var toRotate = elements[i].getAttribute('data-type');
-			var period = elements[i].getAttribute('data-period');
-			if (toRotate) {
-				new TxtType(elements[i], JSON.parse(toRotate), period);
-			}
-		}
-		// INJECT CSS
-		var css = document.createElement("style");
-		css.type = "text/css";
-		css.innerHTML = ".typewrite > .wrap { border-right: 0.08em solid #fff}";
-		document.body.appendChild(css);		
-	}
-
 	$(function () {
 		var $window = $(window),
 			$body = $('body');
@@ -117,7 +122,7 @@ $(document).ready(function () {
 
 		$window.on('load', function () {
 			$body.show();
-			particles();
+			carrousel();
 			$body.removeClass('is-loading');
 		});
 
@@ -175,125 +180,86 @@ $(document).ready(function () {
 	});
 })(jQuery);
 
-var particles = function particles() {
-	/* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
-	particlesJS('top',
-		{
-			"particles": {
-				"number": {
-					"value": 40,
-					"density": {
-						"enable": true,
-						"value_area": 800
-					}
-				},
-				"color": {
-					"value": "#ffffff"
-				},
-				"shape": {
-					"type": "circle",
-					"stroke": {
-						"width": 0,
-						"color": "#000000"
-					},
-					"polygon": {
-						"nb_sides": 6
-					},
-					"image": {
-						"src": "assets/images/svg/brand-logo.svg",
-						"width": 100,
-						"height": 100
-					}
-				},
-				"opacity": {
-					"value": 0.5,
-					"random": true,
-					"anim": {
-						"enable": false,
-						"speed": 1,
-						"opacity_min": 0.1,
-						"sync": false
-					}
-				},
-				"size": {
-					"value": 5,
-					"random": true,
-					"anim": {
-						"enable": true,
-						"speed": 1,
-						"size_min": 1,
-						"sync": false
-					}
-				},
-				"line_linked": {
-					"enable": true,
-					"distance": 150,
-					"color": "#ffffff",
-					"opacity": 0.4,
-					"width": 1
-				},
-				"move": {
-					"enable": true,
-					"speed": 6,
-					"direction": "none",
-					"random": false,
-					"straight": false,
-					"out_mode": "out",
-					"attract": {
-						"enable": false,
-						"rotateX": 600,
-						"rotateY": 1200
-					}
-				}
-			},
-			"interactivity": {
-				"detect_on": "canvas",
-				"events": {
-					"onhover": {
-						"enable": true,
-						"mode": "grab"
-					},
-					"onclick": {
-						"enable": true,
-						"mode": "push"
-					},
-					"resize": true
-				},
-				"modes": {
-					"grab": {
-						"distance": 400,
-						"line_linked": {
-							"opacity": 1
-						}
-					},
-					"bubble": {
-						"distance": 400,
-						"size": 40,
-						"duration": 2,
-						"opacity": 8,
-						"speed": 3
-					},
-					"repulse": {
-						"distance": 200
-					},
-					"push": {
-						"particles_nb": 4
-					},
-					"remove": {
-						"particles_nb": 2
-					}
-				}
-			},
-			"retina_detect": true,
-			"config_demo": {
-				"hide_card": false,
-				"background_color": "",
-				"background_image": "",
-				"background_position": "50% 50%",
-				"background_repeat": "no-repeat",
-				"background_size": "cover"
-			}
+posts.forEach((post, index) => {
+	post.addEventListener("click", () => {
+		disablePostsTemporarily();
+		i = 0; // Reset the progress bar
+		postIndex = index;
+		updatePosts();
+	});
+});
+
+function progress() {
+	if (i === 100) {
+		i = -5;
+		// reset progress bar
+		currentPost.querySelector(".progress-bar__fill").style.width = 0;
+		mainProgressBar.style.width = 0;
+		currentPost.classList.remove("post--active");
+
+		postIndex++;
+
+		currentMainPost.classList.add("main-post--not-active");
+		currentMainPost.classList.remove("main-post--active");
+
+		// reset postIndex to loop over the slides again
+		if (postIndex === posts.length) {
+			postIndex = 0;
 		}
 
-	);
+		currentPost = posts[postIndex];
+		currentMainPost = mainPosts[postIndex];
+	} else {
+		if (currentPost == undefined) {
+			loadPosts();
+		}
+
+		i++;
+		currentPost.querySelector(".progress-bar__fill").style.width = `${i}%`;
+		mainProgressBar.style.width = `${i}%`;
+		currentPost.classList.add("post--active");
+
+		currentMainPost.classList.add("main-post--active");
+		currentMainPost.classList.remove("main-post--not-active");
+	}
+}
+
+
+
+function disablePostsTemporarily() {
+	// Disable pointer events on all posts
+	posts.forEach((post) => {
+		post.classList.add("post--disabled");
+	});
+
+	// Re-enable pointer events after 2 1/2 seconds
+	setTimeout(() => {
+		posts.forEach((post) => {
+			post.classList.remove("post--disabled");
+		});
+	}, 2500);
+}
+
+function updatePosts() {
+	// Reset all progress bars and classes
+	posts.forEach((post) => {
+		post.querySelector(".progress-bar__fill").style.width = 0;
+		post.classList.remove("post--active");
+	});
+
+	mainPosts.forEach((mainPost) => {
+		mainPost.classList.add("main-post--not-active");
+		mainPost.classList.remove("main-post--active");
+	});
+
+	// Update the current post and main post
+	currentPost = posts[postIndex];
+	currentMainPost = mainPosts[postIndex];
+
+	currentPost.querySelector(".progress-bar__fill").style.width = `${i}%`;
+	mainProgressBar.style.width = `${i}%`;
+	currentPost.classList.add("post--active");
+
+	currentMainPost.classList.add("main-post--active");
+	currentMainPost.classList.remove("main-post--not-active");
 }

@@ -1,8 +1,8 @@
-Homepage
+Homepage da Artes Da Mariela
 ========
 
 Meu repositório pessoal HTML5+CSS+JS.
 
-[danielfloripa](http://danielfloripa.github.io/)
+[artesdamariela](http://artesdamariela.github.io/)
 -----------
-![danielfloripa](assets/images/v2.png)
+![artesdamariela](assets/images/v2.png)
